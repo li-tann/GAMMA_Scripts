@@ -2,13 +2,17 @@ import os
 import re
 import sys
 
+'''
+使用方法, 
+在terminal中输入: 'python pyscripts_load_alos2.py /mnt/e/REMOTE_SENSING_DATA/ALOS2'
+脚本会在argv[1]的地址内, 搜索文件夹(不会遍历), 查找符合要求的文件夹(带有LED_..., IMG_HH...文件的文件夹), 
+在内部创建slc, 并执行gamma的par_EORC_PALSAR指令, 将ALOS2数据转换为slc和slc.par, 并放到slc文件夹内。
+***执行前记着load_gamma, 开启gamma环境***
+'''
+
+
 ALOS2_IMG=1
 ALOS2_LED=0
-
-argc = len(sys.argv)
-if(argc<2):
-    print('please input folder_path after argv[0]({}).'.format(sys.argv[0]))
-    exit()
 
 def get_alos2_file(path):
     '''
@@ -57,6 +61,9 @@ def load_alos2_data(alos2_filepath):
 
 
 def load_alos2_streamline(rootpath):
+    '''
+    遍历根目录rootpath, 对根目录内所有文件夹执行load_alos2_data函数, 将满足要求的数据转换为 date.sla & date.sla.par
+    '''
     files=os.listdir(rootpath)
     for file in files:
         file_path = os.path.join(rootpath, file)
@@ -65,26 +72,13 @@ def load_alos2_streamline(rootpath):
             load_alos2_data(file_path)
     return 
     
+# ------------------------------------------------------------------------------------------------------ #
+
+
+argc = len(sys.argv)
+if(argc<2):
+    print('please input folder_path after argv[0]({}).'.format(sys.argv[0]))
+    exit()
+
 load_alos2_streamline(sys.argv[1])
 
-# alos2_filepath=sys.argv[1]
-# alos_data = get_alos2_file(alos2_filepath)
-# if (alos_data[ALOS2_LED]=="" or alos_data[ALOS2_IMG]==""):
-#     print("there is not a alos2 folder ")
-#     exit
-# print("there is a alos2 folder ")
-# print(alos_data)
-
-# slc_folder = os.path.join(alos2_filepath,"slc")
-# if(not os.path.exists(slc_folder)):
-#     os.mkdir(slc_folder)
-
-# date=alos_data[2]
-# print(date)
-# gamma_path = [date+".slc.par",date+".slc"]
-# print(gamma_path)
-# gamma_path = [os.path.join(slc_folder,gamma_path[0]),os.path.join(slc_folder,gamma_path[1])]
-# print(gamma_path)
-
-# os.system('par_EORC_PALSAR {} {} {} {}'.format(alos_data[0],gamma_path[0],alos_data[1],gamma_path[1]))
-# print('par_EORC_PALSAR {} {} {} {}'.format(alos_data[0],gamma_path[0],alos_data[1],gamma_path[1]))
